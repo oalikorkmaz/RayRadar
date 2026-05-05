@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#ff8c42" />
+  <meta name="description" content="Tek hatlı tren güzergahı izleme ve uyarı sistemi" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
+  <title>Tren İzleme — Pazarcık</title>
+
+  <link rel="stylesheet" href="styles/reset.css" />
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/header.css" />
+  <link rel="stylesheet" href="styles/track-view.css" />
+  <link rel="stylesheet" href="styles/train-list.css" />
+  <link rel="stylesheet" href="styles/modal.css" />
+  <link rel="stylesheet" href="styles/alerts.css" />
+  <link rel="stylesheet" href="styles/responsive.css" />
+</head>
+<body>
+
+  <!-- First-launch overlay -->
+  <div id="first-launch-container"></div>
+
+  <!-- Main app (hidden until first launch done) -->
+  <div id="app" class="hidden">
+    <header id="header-container"></header>
+
+    <!-- Alert banners -->
+    <div id="banners-container" aria-live="assertive"></div>
+
+    <main id="main">
+      <!-- Upper half: track visualization -->
+      <section id="track-container" aria-label="Hat görselleştirmesi"></section>
+
+      <!-- Lower half: train list -->
+      <section id="list-container" aria-label="Tren listesi"></section>
+    </main>
+  </div>
+
+  <!-- Modals (portals) -->
+  <div id="modal-container"></div>
+  <div id="stale-modal-container"></div>
+  <div id="settings-container"></div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
