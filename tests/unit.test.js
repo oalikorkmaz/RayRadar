@@ -2,6 +2,7 @@
 import { minutesRemaining, formatMinutes, formatTime } from '../js/services/time.js';
 import { createTrain, getTrainProgress, getTrainPosition, getTrainDirection } from '../js/models/Train.js';
 import { validateRoute, validateTrainNumber, validateDuration } from '../js/models/Line.js';
+import { loadData, saveData, DEFAULT_DATA } from '../js/services/storage.js';
 
 const out = document.getElementById('output');
 let passed = 0, failed = 0;
@@ -64,6 +65,31 @@ assert(freshProgress < 0.01, `getTrainProgress: fresh train ≈ 0 (got ${freshPr
 // Position test: fresh train starting at NARL (index 2)
 const freshPos = getTrainPosition(t);
 assert(Math.abs(freshPos - 2) < 0.1, `getTrainPosition: fresh NARL→PAZA ≈ 2 (got ${freshPos.toFixed(4)})`);
+
+// --- storage.js ---
+out.innerHTML += '<hr><b>storage.js</b>\n';
+
+// Clear any existing test data
+localStorage.removeItem('tren-izleme:v1');
+
+const fresh = loadData();
+assert(Array.isArray(fresh.activeTrains), 'loadData: fresh → activeTrains is array');
+assert(fresh.firstLaunchCompleted === false, 'loadData: fresh → firstLaunchCompleted=false');
+assert(fresh.settings.preWarningMinutes === 3, 'loadData: fresh → preWarningMinutes=3');
+
+// Save and reload
+const testData = { ...fresh, firstLaunchCompleted: true };
+saveData(testData);
+const reloaded = loadData();
+assert(reloaded.firstLaunchCompleted === true, 'saveData+loadData: firstLaunchCompleted persists');
+
+// Bad JSON
+localStorage.setItem('tren-izleme:v1', '{bad json}');
+const recovered = loadData();
+assert(Array.isArray(recovered.activeTrains), 'loadData: bad JSON → returns defaults');
+
+// Cleanup
+localStorage.removeItem('tren-izleme:v1');
 
 // --- Summary ---
 out.innerHTML += `<hr><b>Sonuç: ${passed} geçti, ${failed} başarısız</b>\n`;
