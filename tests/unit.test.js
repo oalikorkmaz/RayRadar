@@ -3,6 +3,7 @@ import { minutesRemaining, formatMinutes, formatTime } from '../js/services/time
 import { createTrain, getTrainProgress, getTrainPosition, getTrainDirection } from '../js/models/Train.js';
 import { validateRoute, validateTrainNumber, validateDuration } from '../js/models/Line.js';
 import { loadData, saveData, DEFAULT_DATA } from '../js/services/storage.js';
+import { detectCollisions, predictCollisionOnAdd } from '../js/services/collision.js';
 
 const out = document.getElementById('output');
 let passed = 0, failed = 0;
@@ -90,6 +91,27 @@ assert(Array.isArray(recovered.activeTrains), 'loadData: bad JSON → returns de
 
 // Cleanup
 localStorage.removeItem('tren-izleme:v1');
+
+// --- collision.js ---
+out.innerHTML += '<hr><b>collision.js</b>\n';
+
+// Two trains, opposite direction, same segment (both 50% through NARL→PAZA / PAZA→NARL)
+const now7 = Date.now() - 7 * 60_000; // started 7 min ago
+const cTrainA = { id: 'a', trainNumber: '11111', fromStation: 'NARL', toStation: 'PAZA', durationMin: 15, startedAt: now7, status: 'active', preWarningFired: false, arrivedAt: null };
+const cTrainB = { id: 'b', trainNumber: '22222', fromStation: 'PAZA', toStation: 'NARL', durationMin: 15, startedAt: now7, status: 'active', preWarningFired: false, arrivedAt: null };
+const cols = detectCollisions([cTrainA, cTrainB]);
+assert(cols.length >= 1, 'detectCollisions: zıt yönlü iki tren → collision tespit edildi');
+assert(cols[0].trainA.trainNumber === '11111' || cols[0].trainB.trainNumber === '11111', 'detectCollisions: collision contains train 11111');
+
+// Two trains, same direction → no collision
+const cTrainC = { id: 'c', trainNumber: '33333', fromStation: 'DEHL', toStation: 'PAZA', durationMin: 13, startedAt: Date.now() - 3 * 60_000, status: 'active', preWarningFired: false, arrivedAt: null };
+const noCols = detectCollisions([cTrainA, cTrainC]);
+assert(noCols.length === 0, 'detectCollisions: aynı yönlü iki tren → collision yok');
+
+// Arrived trains should not trigger collision
+const arrivedTrain = { ...cTrainB, status: 'arrived' };
+const noColsArrived = detectCollisions([cTrainA, arrivedTrain]);
+assert(noColsArrived.length === 0, 'detectCollisions: arrived train ignored');
 
 // --- Summary ---
 out.innerHTML += `<hr><b>Sonuç: ${passed} geçti, ${failed} başarısız</b>\n`;
