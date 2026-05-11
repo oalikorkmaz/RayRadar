@@ -234,7 +234,10 @@ body.is-mobile.is-small .card-grid { grid-template-columns: 1fr; }
   }
 
   .topbar { padding: 0 12px; gap: 8px; }
-  .track-panel { padding: 8px 10px 0; }
+  .track-panel { padding: 6px 10px 0; }
+  .track-stage { height: 100% !important; }  /* sabit 270px'i override et */
+  .panel-title-row { margin-bottom: 2px; }
+  .panel-title-row h2 { font-size: 12px; }
   #list-container { max-height: 65dvh; }
 }
 

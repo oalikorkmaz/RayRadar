@@ -29,13 +29,13 @@
 }
 
 .track-stage {
-  position: relative;
-  height:   270px;
-  flex:     1;           /* track-panel flex çocuğu — kalan alanı al */
+  position:   relative;
+  height:     270px;     /* masaüstü varsayılanı */
+  flex:       1;         /* track-panel flex çocuğu: kalan alanı al */
+  min-height: 120px;     /* çok küçülmesin */
   margin-top: 2px;
   overflow-x: auto;
   overflow-y: hidden;
-  /* Pürüzsüz momentum scroll (iOS) */
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
 }
@@ -296,3 +296,63 @@
   0%, 100% { opacity: 1; }
   50% { opacity: .3; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   YATAY TELEFON — kısa ekrana uyum
+   SVG'nin alt kısmı kırpılır, etiketleri YUKARI taşı.
+
+   SVG koordinatları:
+     RAIL_Y = 165  (rayın y konumu)
+     etiket y = 48  →  ekran: 165 + 48 = 213px  (kırpılıyor)
+     "İZLENEN" y = 66  →  231px  (kesinlikle kırpılıyor)
+
+   Düzeltme: translateY(-96px) ile etiketleri rayın ÜSTÜNE taşı
+     yeni konum: 165 + 48 - 96 = 117px  ✓  (sığar)
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (orientation: landscape) and (max-height: 600px) {
+
+  /* İstasyon etiketlerini rayın üstüne taşı */
+  .station-label {
+    transform:  translateY(-96px);
+    font-size:  8px;
+  }
+
+  .station-node.watched .station-label {
+    font-size:  9px;
+  }
+
+  /* "İZLENEN" yazısını gizle (zaten görünür, etiket üstte) */
+  .station-mini { display: none; }
+
+  /* Çakışma üçgeni de yukarı git */
+  .collision-glyph {
+    transform: translateY(20px);
+  }
+
+  /* Tren chip ve route mini biraz küçült */
+  .train-chip {
+    font-size: 10px;
+    padding:   3px 6px;
+    min-width: 72px;
+  }
+
+  .route-mini { font-size: 8px; }
+
+  /* track-stage yüksekliğini daha iyi kullan */
+  .track-stage { height: 100%; }
+}
+
+/* JS class versiyonu (CSS media query çalışmazsa fallback) */
+body.is-landscape .station-label {
+  transform: translateY(-96px);
+  font-size: 8px;
+}
+
+body.is-landscape .station-node.watched .station-label {
+  font-size: 9px;
+}
+
+body.is-landscape .station-mini         { display: none; }
+body.is-landscape .train-chip           { font-size: 10px; padding: 3px 6px; min-width: 72px; }
+body.is-landscape .route-mini           { font-size: 8px; }
