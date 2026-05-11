@@ -248,24 +248,34 @@ function stationX(index, segCount) {
   return PAD_L + (index / segCount) * (VIEW_W - PAD_L - PAD_R);
 }
 
-/** İzlenen istasyonu track-stage'in ortasına kaydır (yalnızca ilk render) */
+/** İzlenen istasyonu track-stage'in ortasına kaydır.
+ *
+ *  requestAnimationFrame: DOM render tamamlanmadan clientWidth = 0 okunur.
+ *  İki frame bekleyerek layout'un kesinleşmesini garantiliyoruz.
+ */
 function scrollToWatchedStation(container, watchedId, stations, segCount) {
-  const stage   = container.querySelector('.track-stage');
-  if (!stage) return;
+  // İlk frame: layout hesaplandı ama henüz ekrana basılmadı
+  requestAnimationFrame(() => {
+    // İkinci frame: ekrana basıldı, clientWidth güvenilir
+    requestAnimationFrame(() => {
+      const stage = container.querySelector('.track-stage');
+      if (!stage) return;
 
-  const watched = stations.find(s => s.id === watchedId);
-  if (!watched) return;
+      const stageWidth = stage.clientWidth;
+      if (!stageWidth) return;  // hala 0 ise vazgeç (örn. gizli sekme)
 
-  const targetX    = stationX(watched.index, segCount); // SVG piksel konumu
-  const stageWidth = stage.clientWidth;
+      const watched = stations.find(s => s.id === watchedId);
+      if (!watched) return;
 
-  // İstasyonu ortala
-  const scrollTarget = Math.max(0, targetX - stageWidth / 2);
+      const targetX      = stationX(watched.index, segCount);
+      const scrollTarget = Math.max(0, targetX - stageWidth / 2);
 
-  // Sadece ilk yükleme veya izlenen istasyon değişince kaydır
-  // (kullanıcının manuel kaydırmasını silmemek için)
-  if (stage.dataset.watchedId !== watchedId) {
-    stage.scrollLeft = scrollTarget;
-    stage.dataset.watchedId = watchedId;
-  }
+      // İzlenen istasyon değişince yeniden ortala;
+      // aynı istasyonsa kullanıcının manual scroll'unu koru
+      if (stage.dataset.watchedId !== watchedId) {
+        stage.scrollLeft           = scrollTarget;
+        stage.dataset.watchedId    = watchedId;
+      }
+    });
+  });
 }
