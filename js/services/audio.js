@@ -10,9 +10,19 @@ const DEFAULT_PATHS = {
 export function initAudio(customSounds = {}) {
   for (const [type, defaultPath] of Object.entries(DEFAULT_PATHS)) {
     const src = customSounds[type] || defaultPath;
-    if (src) {
-      sounds[type] = new Audio(src);
-      sounds[type].load();
+    if (!src) continue;
+    try {
+      const audio = new Audio();
+      // Hata sessizce yutulsun — ses olmadan uygulama çalışmaya devam eder
+      audio.addEventListener('error', () => {
+        console.warn(`[audio] "${type}" yüklenemedi (${src}) — sesler devre dışı`);
+        sounds[type] = null;
+      });
+      audio.src = src;
+      audio.load();
+      sounds[type] = audio;
+    } catch (e) {
+      console.warn(`[audio] "${type}" başlatılamadı:`, e);
     }
   }
 }
@@ -52,6 +62,10 @@ export function playSound(type, enabled = true) {
   if (!enabled || !unlocked) return;
   const snd = sounds[type];
   if (!snd) return;
-  snd.currentTime = 0;
-  snd.play().catch(e => console.warn('[audio] Play failed:', e));
+  try {
+    snd.currentTime = 0;
+    snd.play().catch(() => {}); // Promise rejection sessizce yutulsun
+  } catch (e) {
+    // Ses olmadan devam et
+  }
 }

@@ -11,14 +11,16 @@
 }
 
 .modal-card {
-  width: min(540px, 100%);
-  max-height: min(92vh, 760px);
-  overflow: auto;
-  padding: 20px;
-  border: 1px solid var(--line-2);
+  width:      min(540px, 100%);
+  max-height: min(92dvh, 760px);   /* dvh: klavye açıkken doğru yükseklik */
+  overflow:   auto;
+  padding:    20px;
+  border:     1px solid var(--line-2);
   border-radius: 14px;
   background: var(--bg-2);
   box-shadow: 0 34px 120px rgba(0, 0, 0, .55);
+  /* Klavye açılınca modal görünür kalsın */
+  overscroll-behavior: contain;
 }
 
 .modal-header,

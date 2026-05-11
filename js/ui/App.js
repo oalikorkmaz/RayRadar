@@ -16,14 +16,15 @@ let state = {
   segmentTimes:         {},
   firstLaunchCompleted: false,
   ui: {
-    activeTab:      'active',
-    showForm:       false,
-    editingTrain:   null,
-    showSettings:   false,
-    banners:        [],
-    showStaleModal: false,
-    staleTrains:    [],
-    collisions:     [],
+    activeTab:       'active',
+    showForm:        false,
+    editingTrain:    null,
+    showSettings:    false,
+    showMobilePanel: false,   // mobil alt çekmece
+    banners:         [],
+    showStaleModal:  false,
+    staleTrains:     [],
+    collisions:      [],
   },
 };
 
@@ -133,6 +134,12 @@ function reduce(s, action, payload) {
 
     case 'TOGGLE_SETTINGS':
       return { ...s, ui: { ...s.ui, showSettings: !s.ui.showSettings } };
+
+    case 'TOGGLE_MOBILE_PANEL':
+      return { ...s, ui: { ...s.ui, showMobilePanel: !s.ui.showMobilePanel } };
+
+    case 'CLOSE_MOBILE_PANEL':
+      return { ...s, ui: { ...s.ui, showMobilePanel: false } };
 
     case 'UPDATE_SETTINGS':
       return { ...s, settings: { ...s.settings, ...payload } };
@@ -435,6 +442,18 @@ async function renderAll() {
   fns.TrainList.renderTrainList(document.getElementById('list-container'), s, dispatch);
   fns.AlertBanner.renderBanners(document.getElementById('banners-container'), s, dispatch);
 
+  // Mobil alt çekmece ve backdrop
+  const listEl     = document.getElementById('list-container');
+  const backdropEl = document.getElementById('list-backdrop');
+  if (listEl)     listEl.classList.toggle('panel-open', s.ui.showMobilePanel);
+  if (backdropEl) {
+    backdropEl.classList.toggle('visible', s.ui.showMobilePanel);
+    backdropEl.onclick = () => dispatch('CLOSE_MOBILE_PANEL');
+  }
+
+  // Mobil alt bar
+  renderMobileBar(s);
+
   if (s.ui.showStaleModal) {
     fns.StaleModal.renderStaleModal(document.getElementById('stale-modal-container'), s, dispatch);
   } else {
@@ -490,6 +509,38 @@ function renderHeader(s) {
       </button>
     </div>`;
 }
+// ─── Mobil Alt Bar ─────────────────────────────────────────────────────────
+
+function renderMobileBar(s) {
+  const bar = document.getElementById('mobile-bottom-bar');
+  if (!bar) return;
+
+  const activeCount   = s.trains.filter(t => t.status === 'active').length;
+  const panelOpen     = s.ui.showMobilePanel;
+  const collisionCount = s.ui.collisions.length;
+
+  bar.innerHTML = `
+    <button class="mobile-bar-btn ${panelOpen ? 'active' : ''}"
+            onclick="window._dispatch('TOGGLE_MOBILE_PANEL')"
+            aria-label="Tren listesi" aria-expanded="${panelOpen}">
+      <span class="mobile-bar-icon">≡</span>
+      <span class="mobile-bar-label">Listele${activeCount > 0 ? ` (${activeCount})` : ''}</span>
+    </button>
+
+    <button class="mobile-bar-fab"
+            onclick="window._dispatch('OPEN_FORM')"
+            aria-label="Yeni tren ekle">
+      <span>+</span>
+    </button>
+
+    <button class="mobile-bar-btn ${collisionCount > 0 ? 'danger' : ''}"
+            onclick="window._dispatch('TOGGLE_SETTINGS')"
+            aria-label="Ayarlar">
+      <span class="mobile-bar-icon">⚙</span>
+      <span class="mobile-bar-label">Ayarlar</span>
+    </button>`;
+}
+
 // ─── Boot ──────────────────────────────────────────────────────────────────
 
 export async function boot() {

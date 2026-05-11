@@ -28,18 +28,23 @@ export function renderTrackView(container, state, dispatch) {
           <span>${collisionSegments.size} kritik segment</span>
         </div>
       </div>
-      <div class="track-stage">
-        <svg class="track-svg" viewBox="0 0 ${VIEW_W} ${VIEW_H}" role="img" aria-label="Tren hattı">
-          ${renderRails(collisionSegments, segCount)}
-          ${renderStations(stations, watchedId, segCount)}
-        </svg>
-        <div class="track-trains">
-          ${state.trains.map(train => trainMarker(train, dragEnabled, stations, watchedId, segCount)).join('')}
+      <div class="track-stage-wrapper">
+        <div class="track-stage">
+          <svg class="track-svg" viewBox="0 0 ${VIEW_W} ${VIEW_H}" role="img" aria-label="Tren hattı">
+            ${renderRails(collisionSegments, segCount)}
+            ${renderStations(stations, watchedId, segCount)}
+          </svg>
+          <div class="track-trains">
+            ${state.trains.map(train => trainMarker(train, dragEnabled, stations, watchedId, segCount)).join('')}
+          </div>
         </div>
       </div>
     </section>`;
 
   bindTrainInteractions(container, state, dispatch, stations, segCount);
+
+  // Mobil: izlenen istasyonu ekranın ortasına kaydır
+  scrollToWatchedStation(container, watchedId, stations, segCount);
 }
 
 function renderRails(collisionSegments, segCount) {
@@ -155,7 +160,7 @@ function bindTrainInteractions(container, state, dispatch, stations, segCount) {
       event.preventDefault();
 
       const train = state.trains.find(t => t.id === el.dataset.trainId);
-      const stage = container.querySelector('.track-stage');
+      const stage = container.querySelector('.track-stage');       /* sürükleme için iç .track-stage */
       if (!train || !stage) return;
 
       const dragEnabled = state.settings?.dragRepositionEnabled !== false;
@@ -241,4 +246,26 @@ function nearestStation(x, stations, segCount) {
 
 function stationX(index, segCount) {
   return PAD_L + (index / segCount) * (VIEW_W - PAD_L - PAD_R);
+}
+
+/** İzlenen istasyonu track-stage'in ortasına kaydır (yalnızca ilk render) */
+function scrollToWatchedStation(container, watchedId, stations, segCount) {
+  const stage   = container.querySelector('.track-stage');
+  if (!stage) return;
+
+  const watched = stations.find(s => s.id === watchedId);
+  if (!watched) return;
+
+  const targetX    = stationX(watched.index, segCount); // SVG piksel konumu
+  const stageWidth = stage.clientWidth;
+
+  // İstasyonu ortala
+  const scrollTarget = Math.max(0, targetX - stageWidth / 2);
+
+  // Sadece ilk yükleme veya izlenen istasyon değişince kaydır
+  // (kullanıcının manuel kaydırmasını silmemek için)
+  if (stage.dataset.watchedId !== watchedId) {
+    stage.scrollLeft = scrollTarget;
+    stage.dataset.watchedId = watchedId;
+  }
 }

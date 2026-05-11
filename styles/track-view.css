@@ -1,13 +1,16 @@
 .track-panel {
-  height: 100%;
-  padding: 18px 20px 10px;
+  height:   100%;
+  padding:  18px 20px 10px;
+  display:  flex;
+  flex-direction: column;
 }
 
 .panel-title-row {
-  display: flex;
+  display:     flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 18px;
+  gap:         18px;
+  flex-shrink: 0;
 }
 
 .track-summary {
@@ -27,10 +30,37 @@
 
 .track-stage {
   position: relative;
-  height: 270px;
+  height:   270px;
+  flex:     1;           /* track-panel flex çocuğu — kalan alanı al */
   margin-top: 2px;
   overflow-x: auto;
   overflow-y: hidden;
+  /* Pürüzsüz momentum scroll (iOS) */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* ── Sağda içerik devam ediyor göstergesi ──────────────
+   track-stage'in dışında bir wrapper olmadan bunu
+   pseudo-element ile yapamayız; TrackView.js'te
+   .track-stage-wrapper div'i var, onu kullanıyoruz.
+   ─────────────────────────────────────────────────── */
+.track-stage-wrapper {
+  position: relative;
+  flex:     1;
+  /* NOT: overflow: hidden kullanma — track-stage scroll'unu keser */
+  min-height: 0;
+}
+
+/* Sağ kenar gradient — scroll devam ediyor göstergesi
+   mask-image: scroll container'ın içinden bakınca çalışır,
+   bu yüzden track-stage'e uyguluyoruz, wrapper'a değil */
+@media (max-width: 900px) {
+  .track-stage {
+    /* Sağ %15'te fade-out → "daha fazla içerik var" ipucu */
+    -webkit-mask-image: linear-gradient(to right, black 82%, transparent 100%);
+    mask-image:         linear-gradient(to right, black 82%, transparent 100%);
+  }
 }
 
 .track-svg {

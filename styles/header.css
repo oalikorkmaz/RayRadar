@@ -13,10 +13,11 @@
 }
 
 .brand-block {
-  display: flex;
+  display:   flex;
   align-items: center;
-  gap: 10px;
+  gap:       10px;
   min-width: 176px;
+  flex-shrink: 0;    /* sıkışmayı önle */
 }
 
 .logo-mark {
@@ -88,15 +89,17 @@
 }
 
 .topbar-icon {
-  position: relative;
-  display: grid;
-  width: 36px;
-  height: 36px;
-  place-items: center;
-  border: 1px solid var(--line-2);
+  position:     relative;
+  display:      grid;
+  width:        36px;
+  height:       36px;
+  place-items:  center;
+  border:       1px solid var(--line-2);
   border-radius: 10px;
-  background: var(--bg-2);
-  color: var(--txt-1);
+  background:   var(--bg-2);
+  color:        var(--txt-1);
+  flex-shrink:  0;   /* header sıkışınca küçülmesin */
+  /* Mobilde 44px dokunma hedefi (responsive.css'te override edilir) */
 }
 
 .topbar-icon em {
