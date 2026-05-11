@@ -1,1 +1,268 @@
-/* Task 2 content */
+.track-panel {
+  height: 100%;
+  padding: 18px 20px 10px;
+}
+
+.panel-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.track-summary {
+  display: flex;
+  gap: 8px;
+}
+
+.track-summary span {
+  padding: 7px 10px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: var(--bg-2);
+  color: var(--txt-2);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.track-stage {
+  position: relative;
+  height: 270px;
+  margin-top: 2px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.track-svg {
+  display: block;
+  width: 1160px;
+  height: 300px;
+}
+
+.rail-normal line,
+.rail-risk line {
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.rail-normal line {
+  stroke: var(--rail);
+}
+
+.rail-risk line {
+  stroke: var(--crit);
+  animation: rail-flash 1s ease-in-out infinite;
+}
+
+.station-dot {
+  fill: var(--bg-1);
+  stroke: var(--txt-1);
+  stroke-width: 1.8;
+}
+
+.station-ring {
+  fill: rgba(255, 157, 92, .12);
+  stroke: var(--watched);
+  stroke-width: 2;
+}
+
+.station-core {
+  fill: var(--watched);
+}
+
+.station-label {
+  fill: var(--txt-1);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 750;
+  paint-order: stroke;
+  stroke: var(--bg-1);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
+.station-node.watched .station-label {
+  fill: var(--watched);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.station-mini {
+  fill: var(--watched);
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .16em;
+}
+
+.collision-glyph path {
+  fill: rgba(255, 90, 90, .18);
+  stroke: var(--crit);
+}
+
+.collision-glyph text {
+  fill: var(--crit);
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.track-trains {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1160px;
+  height: 300px;
+  pointer-events: none;
+}
+
+.topdown-train {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 5px;
+  width: 156px;
+  transform: translateX(-78px);
+  transition: left .9s linear;
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  z-index: 2;
+}
+
+.topdown-train.west {
+  flex-direction: column-reverse;
+}
+
+.topdown-train.dragging {
+  cursor: grabbing;
+  opacity: .92;
+  transform: translateX(-78px) scale(1.04);
+  transition: none;
+  z-index: 5;
+}
+
+.topdown-train.no-drag {
+  cursor: pointer;
+}
+
+.track-stage.drag-active .station-node {
+  opacity: .75;
+}
+
+.station-node.drop-target {
+  opacity: 1;
+}
+
+.station-node.drop-target .station-dot,
+.station-node.drop-target .station-ring {
+  stroke: var(--watched);
+  stroke-width: 3;
+  filter: drop-shadow(0 0 8px rgba(255, 157, 92, .55));
+}
+
+.train-shape {
+  width: 64px;
+  height: 22px;
+}
+
+.train-body {
+  fill: var(--east);
+}
+
+.topdown-train.west .train-body {
+  fill: var(--west);
+}
+
+.topdown-train.warn .train-body {
+  fill: var(--warn);
+}
+
+.topdown-train.crit .train-body {
+  fill: var(--crit);
+}
+
+.train-shadow {
+  fill: rgba(0, 0, 0, .28);
+}
+
+.train-roof {
+  fill: none;
+  stroke: rgba(0, 0, 0, .18);
+  stroke-width: 1;
+}
+
+.train-window,
+.cab-window {
+  fill: rgba(255, 255, 255, .74);
+}
+
+.cab-window {
+  opacity: .85;
+}
+
+.headlight {
+  fill: #fff8e1;
+}
+
+.flip {
+  transform: translateX(64px) scaleX(-1);
+}
+
+.train-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 104px;
+  justify-content: center;
+  padding: 5px 10px;
+  border: 1px solid var(--line-3);
+  border-radius: 6px;
+  background: rgba(28, 34, 45, .96);
+  color: var(--txt-0);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .28);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.chip-number {
+  color: var(--txt-0);
+  letter-spacing: .02em;
+}
+
+.chip-time {
+  color: var(--watched);
+}
+
+.train-chip i {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--txt-3);
+}
+
+.route-mini {
+  max-width: 156px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: rgba(10, 14, 20, .72);
+  color: var(--txt-0);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@keyframes rail-flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .3; }
+}

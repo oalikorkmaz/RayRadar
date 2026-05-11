@@ -1,1 +1,81 @@
-/* Task 2 content */
+#banners-container {
+  position: relative;
+  z-index: 55;
+  display: grid;
+  width: 100%;
+  min-height: 0;
+  transform: none;
+  pointer-events: none;
+}
+
+.alert-banner {
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 8px 16px;
+  border-bottom: 1px solid currentColor;
+  pointer-events: auto;
+}
+
+.alert-banner.warn {
+  color: var(--warn);
+  background: linear-gradient(90deg, rgba(255, 181, 74, .18), rgba(255, 181, 74, .04));
+}
+
+.alert-banner.crit {
+  color: var(--crit);
+  background: linear-gradient(90deg, rgba(255, 90, 90, .18), rgba(255, 90, 90, .04));
+  animation: banner-flash 1.4s ease-in-out infinite;
+}
+
+.alert-banner.persist {
+  animation: none;
+}
+
+.alert-icon {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-weight: 900;
+}
+
+.alert-copy {
+  display: grid;
+  gap: 2px;
+}
+
+.alert-copy span {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.alert-copy strong {
+  color: var(--txt-1);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.alert-close {
+  width: 32px;
+  height: 32px;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  background: transparent;
+  color: currentColor;
+  font-size: 18px;
+  line-height: 1;
+}
+
+@keyframes banner-flash {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.22); }
+}

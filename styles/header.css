@@ -1,1 +1,116 @@
-/* Task 2 content */
+#header-container {
+  height: 60px;
+  background: var(--bg-1);
+  border-bottom: 1px solid var(--line-1);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+  padding: 0 18px;
+}
+
+.brand-block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 176px;
+}
+
+.logo-mark {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--watched);
+  color: #160f0a;
+  font-weight: 800;
+}
+
+.brand-block strong {
+  display: block;
+  color: var(--txt-0);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.brand-block small {
+  color: var(--txt-2);
+  font-family: var(--mono);
+  font-size: 10px;
+}
+
+.watched-pill,
+.system-pill,
+.active-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 30px;
+  padding: 0 11px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: var(--bg-2);
+  color: var(--txt-1);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.watched-pill i,
+.system-pill i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--watched);
+}
+
+.system-pill i {
+  background: var(--ok);
+  box-shadow: 0 0 0 4px rgba(54, 217, 122, .12);
+}
+
+.active-pill {
+  color: var(--txt-2);
+}
+
+.topbar-spacer {
+  flex: 1;
+}
+
+.topbar-clock {
+  color: var(--txt-1);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.topbar-icon {
+  position: relative;
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid var(--line-2);
+  border-radius: 10px;
+  background: var(--bg-2);
+  color: var(--txt-1);
+}
+
+.topbar-icon em {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--crit);
+  color: white;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-style: normal;
+  line-height: 17px;
+}

@@ -1,66 +1,56 @@
-import { getTrainPosition, getTrainDirection } from '../models/Train.js';
-import { getSegmentIndex } from '../models/Line.js';
-import { getStationById } from '../constants/stations.js';
+import { getTrainDirection, getTrainPosition } from '../models/Train.js';
+import { getStationById, DEFAULT_STATIONS, SEGMENT_COUNT } from '../constants/stations.js';
 
 /**
- * Returns array of collision objects for the given active train list.
- * { segmentIndex, trainA, trainB, estimatedMinutes }
+ * Future-path collision detection for opposite-direction trains.
+ * A risk exists when an eastbound train is left of a westbound train and
+ * their remaining route intervals overlap.
  */
-export function detectCollisions(trains) {
+export function detectCollisions(trains, stations = DEFAULT_STATIONS) {
   const active = trains.filter(t => t.status === 'active');
   const collisions = [];
 
   for (let i = 0; i < active.length; i++) {
     for (let j = i + 1; j < active.length; j++) {
-      const a = active[i];
-      const b = active[j];
-
-      const posA = getTrainPosition(a);
-      const posB = getTrainPosition(b);
-      const dirA = getTrainDirection(a);
-      const dirB = getTrainDirection(b);
-
-      if (posA === null || posB === null) continue;
-      if (dirA === dirB) continue; // same direction → no collision risk
-
-      const segA = getSegmentIndex(posA);
-      const segB = getSegmentIndex(posB);
-      if (segA !== segB) continue; // different segments
-
-      // Same segment, opposite directions → collision risk
-      const estMinutes = estimateMeetingMinutes(a, b, posA, posB);
-
-      collisions.push({ segmentIndex: segA, trainA: a, trainB: b, estimatedMinutes: estMinutes });
+      const risk = collisionBetween(active[i], active[j], stations);
+      if (risk) collisions.push(risk);
     }
   }
 
   return collisions;
 }
 
-/**
- * Check if adding newTrain would cause collisions with existingTrains.
- * Returns collision array (empty = safe).
- */
-export function predictCollisionOnAdd(newTrain, existingTrains) {
-  return detectCollisions([newTrain, ...existingTrains]);
+export function predictCollisionOnAdd(newTrain, existingTrains, stations = DEFAULT_STATIONS) {
+  return detectCollisions([newTrain, ...existingTrains], stations);
 }
 
-function estimateMeetingMinutes(a, b, posA, posB) {
-  const fromA = getStationById(a.fromStation);
-  const toA   = getStationById(a.toStation);
-  const fromB = getStationById(b.fromStation);
-  const toB   = getStationById(b.toStation);
+function collisionBetween(a, b, stations) {
+  const dirA = getTrainDirection(a, stations);
+  const dirB = getTrainDirection(b, stations);
+  if (!dirA || !dirB || dirA === dirB) return null;
 
-  if (!fromA || !toA || !fromB || !toB) return 0;
+  const left  = dirA === 'east' ? a : b;
+  const right = dirA === 'east' ? b : a;
+  const leftPos  = getTrainPosition(left,  stations);
+  const rightPos = getTrainPosition(right, stations);
+  const leftTo   = getStationById(left.toStation,   stations);
+  const rightTo  = getStationById(right.toStation,  stations);
+  const leftFrom = getStationById(left.fromStation, stations);
+  const rightFrom= getStationById(right.fromStation,stations);
 
-  // Speed = distance (in index units) per minute
-  const distA = Math.abs(toA.index - fromA.index);
-  const distB = Math.abs(toB.index - fromB.index);
-  const speedA = distA / a.durationMin;   // index/min
-  const speedB = distB / b.durationMin;
+  if ([leftPos, rightPos].some(v => v === null) || !leftTo || !rightTo || !leftFrom || !rightFrom) return null;
+  if (leftPos >= rightPos) return null;
+  if (leftTo.index <= rightTo.index) return null;
 
-  const combinedSpeed = speedA + speedB;
-  if (combinedSpeed === 0) return 0;
+  const speedLeft  = Math.abs(leftTo.index  - leftFrom.index)  / left.durationMin;
+  const speedRight = Math.abs(rightTo.index - rightFrom.index) / right.durationMin;
+  const combinedSpeed = speedLeft + speedRight;
+  if (combinedSpeed <= 0) return null;
 
-  return Math.round(Math.abs(posA - posB) / combinedSpeed);
+  const estimatedMinutes = Math.max(0, Math.round((rightPos - leftPos) / combinedSpeed));
+  const meet = (leftPos + rightPos) / 2;
+  const segCount = stations.length - 1;
+  const segmentIndex = Math.max(0, Math.min(segCount - 1, Math.floor(meet)));
+
+  return { segmentIndex, trainA: a, trainB: b, estimatedMinutes };
 }

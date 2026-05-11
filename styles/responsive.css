@@ -1,1 +1,77 @@
-/* Task 2 content */
+@media (max-width: 900px) {
+  #app {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+  }
+
+  #main {
+    grid-template-rows: 310px minmax(0, 1fr);
+  }
+
+  .watched-pill,
+  .active-pill {
+    display: none;
+  }
+
+  .card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  #main {
+    grid-template-rows: 285px minmax(0, 1fr);
+  }
+
+  .track-panel {
+    padding-inline: 12px;
+  }
+
+  .track-stage {
+    height: 220px;
+  }
+
+  .system-pill,
+  .sort-chip {
+    display: none;
+  }
+
+  .brand-block {
+    min-width: 132px;
+  }
+
+  .card-grid,
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .list-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .list-tools {
+    justify-content: space-between;
+  }
+
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal-card {
+    border-radius: 16px 16px 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}

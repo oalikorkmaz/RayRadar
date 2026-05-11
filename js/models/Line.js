@@ -1,4 +1,4 @@
-import { STATIONS, getStationById } from '../constants/stations.js';
+import { DEFAULT_STATIONS as STATIONS, getStationById } from '../constants/stations.js';
 
 export function validateRoute(fromId, toId) {
   if (!fromId) return { valid: false, error: 'Kalkış durağı seçin' };

@@ -1,1 +1,213 @@
-/* Task 2 content */
+.list-panel {
+  padding: 16px 20px 22px;
+}
+
+.list-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.segmented-tabs {
+  display: inline-flex;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid var(--line-1);
+  border-radius: 999px;
+  background: var(--bg-2);
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--txt-2);
+  font-weight: 650;
+}
+
+.tab.active {
+  background: var(--bg-4);
+  color: var(--txt-0);
+}
+
+.tab span,
+.sort-chip {
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: var(--bg-3);
+  color: var(--txt-2);
+  font-family: var(--mono);
+  font-size: 10px;
+}
+
+.tab.active span {
+  background: rgba(255, 157, 92, .18);
+  color: var(--watched);
+}
+
+.list-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.train-card {
+  position: relative;
+  min-height: 142px;
+  overflow: hidden;
+  padding: 16px 16px 14px 19px;
+  border: 1px solid var(--line-1);
+  border-radius: 12px;
+  background: var(--bg-2);
+}
+
+.train-card.warn {
+  background: linear-gradient(120deg, rgba(255, 181, 74, .12), transparent 54%), var(--bg-2);
+}
+
+.train-card.crit {
+  background: linear-gradient(120deg, rgba(255, 90, 90, .14), transparent 54%), var(--bg-2);
+}
+
+.card-accent {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--east);
+}
+
+.train-card.west .card-accent {
+  background: var(--west);
+}
+
+.train-card.warn .card-accent {
+  background: var(--warn);
+}
+
+.train-card.crit .card-accent {
+  background: var(--crit);
+}
+
+.card-main-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.card-number {
+  color: var(--txt-0);
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 650;
+}
+
+.countdown {
+  color: var(--txt-0);
+  font-family: var(--mono);
+  font-size: 26px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.card-route {
+  margin-top: 8px;
+  color: var(--txt-2);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.card-route strong {
+  color: var(--txt-1);
+  font-weight: 600;
+}
+
+.card-route .watched-route {
+  color: var(--watched);
+}
+
+.card-progress {
+  height: 3px;
+  margin: 16px 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--bg-4);
+}
+
+.card-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: currentColor;
+  transition: width .9s linear;
+}
+
+.train-card.east .card-progress span {
+  color: var(--east);
+}
+
+.train-card.west .card-progress span {
+  color: var(--west);
+}
+
+.train-card.warn .card-progress span {
+  color: var(--warn);
+}
+
+.train-card.crit .card-progress span {
+  color: var(--crit);
+}
+
+.card-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.card-action {
+  min-height: 32px;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--txt-1);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.card-action.danger {
+  color: #ffb7b7;
+}
+
+.history-card {
+  min-height: 92px;
+  opacity: .55;
+}
+
+.history-status {
+  color: var(--txt-2);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  display: grid;
+  min-height: 130px;
+  place-items: center;
+  border: 1px dashed var(--line-2);
+  border-radius: 12px;
+  color: var(--txt-2);
+}

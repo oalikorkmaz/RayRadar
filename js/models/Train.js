@@ -1,4 +1,4 @@
-import { getStationById } from '../constants/stations.js';
+import { getStationById, DEFAULT_STATIONS } from '../constants/stations.js';
 
 export function createTrain({ trainNumber, fromStation, toStation, durationMin }) {
   return {
@@ -8,7 +8,7 @@ export function createTrain({ trainNumber, fromStation, toStation, durationMin }
     toStation,
     durationMin: Number(durationMin),
     startedAt: Date.now(),
-    status: 'active',         // 'active' | 'arrived' | 'manual_arrived' | 'deleted'
+    status: 'active',
     arrivedAt: null,
     preWarningFired: false,
   };
@@ -20,19 +20,19 @@ export function getTrainProgress(train) {
   return Math.min(1, Math.max(0, elapsedMs / totalMs));
 }
 
-// Returns floating-point position on the 0–8 index scale
-export function getTrainPosition(train) {
-  const from = getStationById(train.fromStation);
-  const to = getStationById(train.toStation);
+// Dinamik durak listesiyle pozisyon hesapla (varsayılan: DEFAULT_STATIONS)
+export function getTrainPosition(train, stations = DEFAULT_STATIONS) {
+  const from = getStationById(train.fromStation, stations);
+  const to   = getStationById(train.toStation,   stations);
   if (!from || !to) return null;
   const progress = getTrainProgress(train);
   return from.index + progress * (to.index - from.index);
 }
 
-// 'east' = index increasing, 'west' = index decreasing
-export function getTrainDirection(train) {
-  const from = getStationById(train.fromStation);
-  const to = getStationById(train.toStation);
+// Dinamik durak listesiyle yön hesapla
+export function getTrainDirection(train, stations = DEFAULT_STATIONS) {
+  const from = getStationById(train.fromStation, stations);
+  const to   = getStationById(train.toStation,   stations);
   if (!from || !to) return null;
   return to.index > from.index ? 'east' : 'west';
 }

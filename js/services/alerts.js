@@ -1,3 +1,4 @@
+import { getStationById } from '../constants/stations.js';
 import { playSound } from './audio.js';
 import { sendNotification } from './notification.js';
 import { vibrate, VIBRATION_PATTERNS } from './vibration.js';
@@ -9,8 +10,9 @@ import { vibrate, VIBRATION_PATTERNS } from './vibration.js';
 
 export function triggerPreArrivalAlert(train, remainingMinutes, settings, addBanner) {
   const label = `Tren ${train.trainNumber}`;
-  const mins  = Math.ceil(remainingMinutes);
-  const msg   = `${label} yaklaşıyor — ${mins} dk içinde Pazarcık'ta`;
+  const mins = Math.ceil(remainingMinutes);
+  const to = stationName(train.toStation);
+  const msg = `${label} yaklaşıyor - ${mins} dk içinde ${to}`;
 
   playSound('preArrival', settings.soundEnabled);
   sendNotification(label, msg);
@@ -20,17 +22,22 @@ export function triggerPreArrivalAlert(train, remainingMinutes, settings, addBan
 
 export function triggerArrivalAlert(train, settings, addBanner) {
   const label = `Tren ${train.trainNumber}`;
-  const msg   = `${label} PAZARCIK'TA`;
+  const to = stationName(train.toStation);
+  const msg = `${label} ${to} istasyonunda`;
 
   playSound('arrival', settings.soundEnabled);
-  sendNotification(label, `${train.trainNumber} Pazarcık'a vardı`);
+  sendNotification(label, `${train.trainNumber} ${to} istasyonuna vardı`);
   vibrate(VIBRATION_PATTERNS.arrival, settings.vibrationEnabled);
-  addBanner({ type: 'arrival', message: `🚆 ${msg}`, autoDismissMs: null });
+  addBanner({ type: 'arrival', message: msg, autoDismissMs: null });
 }
 
 export function triggerCollisionAlert(collision, addBanner) {
   const mins = collision.estimatedMinutes;
-  const eta  = mins > 0 ? `~${mins} dk sonra ` : '';
-  const msg  = `⚠️ Tren ${collision.trainA.trainNumber} ${eta}Tren ${collision.trainB.trainNumber} ile karşılaşabilir`;
+  const eta = mins > 0 ? `~${mins} dk sonra ` : '';
+  const msg = `Tren ${collision.trainA.trainNumber} ${eta}Tren ${collision.trainB.trainNumber} ile karşılaşabilir`;
   addBanner({ type: 'collision', message: msg, autoDismissMs: null });
+}
+
+function stationName(id) {
+  return getStationById(id)?.label ?? id;
 }
