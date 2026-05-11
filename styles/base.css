@@ -135,21 +135,44 @@ h2 {
 .btn-large { min-height: 48px; padding: 0 24px; font-size: 16px; }
 .first-launch-btn { width: 100%; margin-top: 4px; }
 
+/* ── First Launch tam ekran scroll container ─────────────────────────
+   position:fixed + overflow-y:auto → body overflow:hidden'dan bağımsız.
+   İçerik sığıyorsa dikey ortalar, sığmıyorsa scroll edilebilir.
+   ─────────────────────────────────────────────────────────────────── */
 .first-launch {
-  display: grid;
-  min-height: 100dvh;    /* dvh */
-  place-items: center;
-  padding: 24px;
+  position:   fixed;
+  inset:      0;
+  z-index:    999;
+
+  /* Kendi scroll container */
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+
+  /* Flex ile dikey ortalama + taşmada scroll */
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  justify-content: center;    /* içerik kısa ise ortalar */
+
+  /* Güvenli alan + padding */
+  padding: max(24px, env(safe-area-inset-top, 24px))
+           16px
+           max(24px, env(safe-area-inset-bottom, 24px));
+
   background: var(--bg-0);
 }
 
 .first-launch-panel {
-  width: min(460px, 100%);
-  padding: 28px;
-  border: 1px solid var(--line-2);
+  width:         min(480px, 100%);
+  padding:       28px;
+  border:        1px solid var(--line-2);
   border-radius: 18px;
-  background: var(--bg-2);
-  box-shadow: var(--shadow-lg);
+  background:    var(--bg-2);
+  box-shadow:    var(--shadow-lg);
+  /* Taşma durumunda sıkışmasın */
+  flex-shrink:   0;
 }
 
 .first-launch-panel h1 {
@@ -175,34 +198,52 @@ h2 {
 
 /* İstasyon seçici (FirstLaunch adım 2) */
 .station-picker {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  display:       flex;
+  flex-wrap:     wrap;
+  gap:           8px;
   margin-bottom: 18px;
 }
 
 .station-pick-btn {
-  padding: 8px 14px;
-  border: 1px solid var(--line-2);
+  padding:       8px 14px;
+  border:        1px solid var(--line-2);
   border-radius: 8px;
-  background: var(--bg-3);
-  color: var(--txt-1);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: border-color .15s, background .15s;
+  background:    var(--bg-3);
+  color:         var(--txt-1);
+  font-size:     13px;
+  font-weight:   600;
+  cursor:        pointer;
+  transition:    border-color .15s, background .15s;
+  min-height:    44px;  /* dokunma hedefi */
 }
 
-.station-pick-btn:hover {
-  background: var(--bg-4);
-  border-color: var(--line-3);
-}
+.station-pick-btn:hover  { background: var(--bg-4); border-color: var(--line-3); }
 
 .station-pick-btn.selected {
-  background: rgba(255, 157, 92, .15);
+  background:   rgba(255, 157, 92, .15);
   border-color: var(--watched);
-  color: var(--watched);
+  color:        var(--watched);
 }
+
+/* Yatay telefon: kart daha kompakt */
+@media (orientation: landscape) and (max-height: 600px) {
+  .first-launch-panel {
+    padding:       16px 20px;
+    border-radius: 12px;
+  }
+  .first-launch-panel h1 { font-size: 18px; margin-bottom: 6px; }
+  .first-launch-copy     { margin-bottom: 10px; font-size: 13px; }
+  .station-picker        { gap: 6px; margin-bottom: 10px; }
+  .station-pick-btn      { padding: 6px 10px; font-size: 11px; min-height: 36px; }
+  .first-launch-note     { font-size: 12px; }
+}
+
+body.is-landscape .first-launch-panel { padding: 16px 20px; border-radius: 12px; }
+body.is-landscape .first-launch-panel h1 { font-size: 18px; margin-bottom: 6px; }
+body.is-landscape .first-launch-copy  { margin-bottom: 10px; font-size: 13px; }
+body.is-landscape .station-picker     { gap: 6px; margin-bottom: 10px; }
+body.is-landscape .station-pick-btn   { padding: 6px 10px; font-size: 11px; min-height: 36px; }
+body.is-landscape .first-launch-note  { font-size: 12px; }
 
 /* Ayarlar paneli yardımcıları */
 .settings-block {

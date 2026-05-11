@@ -55,46 +55,46 @@ function showStationStep(container, dispatch) {
         <p class="eyebrow">Adım 2 / 2</p>
         <h1>Hangi İstasyondasınız?</h1>
         <p class="first-launch-copy">
-          Bu sistemin izleyeceği istasyonu seçin. Seçtiğiniz istasyona gelen trenlerde
-          uyarı alırsınız. Ayarlar'dan sonra değiştirebilirsiniz.
+          Sistemin izleyeceği istasyonu seçin.
+          Seçilen istasyona gelen trenlerde uyarı alırsınız.
+          Ayarlar'dan sonra değiştirebilirsiniz.
         </p>
 
         <div class="station-picker">
           ${stations.map(s => `
-            <button class="station-pick-btn" data-id="${s.id}">
+            <button class="station-pick-btn" data-id="${s.id}" type="button">
               ${s.label}
             </button>`).join('')}
         </div>
 
-        <p class="first-launch-note">Lütfen bir durak seçin.</p>
+        <div class="first-launch-note" id="station-confirm-area">
+          Bir durak seçin.
+        </div>
       </div>
     </section>`;
 
-  // Seçilen durak için stil
+  let selectedId = null;
+
   container.querySelectorAll('.station-pick-btn').forEach(btn => {
     btn.addEventListener('click', () => {
+      // Seçimi güncelle
       container.querySelectorAll('.station-pick-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
-    });
-  });
+      selectedId = btn.dataset.id;
 
-  // Durak seçildiğinde ilerle
-  container.querySelectorAll('.station-pick-btn').forEach(btn => {
-    btn.addEventListener('dblclick', () => confirmStation(btn.dataset.id, dispatch));
-  });
+      // Onay alanını güncelle
+      const area = container.querySelector('#station-confirm-area');
+      area.innerHTML = `
+        <strong style="color:var(--watched);display:block;margin-bottom:10px">
+          ✓ ${btn.textContent.trim()} seçildi
+        </strong>
+        <button class="btn btn-primary first-launch-btn" id="confirm-station" type="button">
+          Devam Et →
+        </button>`;
 
-  // Tek tıkla seç + onayla butonu
-  const note = container.querySelector('.first-launch-note');
-  container.addEventListener('click', e => {
-    const pick = e.target.closest('.station-pick-btn');
-    if (!pick) return;
-    note.innerHTML = `
-      <strong style="color:var(--watched)">${pick.textContent.trim()}</strong> seçildi.
-      <button class="btn btn-primary" id="confirm-station" style="margin-top:14px;width:100%">
-        Devam Et →
-      </button>`;
-    container.querySelector('#confirm-station')?.addEventListener('click', () => {
-      confirmStation(pick.dataset.id, dispatch);
+      area.querySelector('#confirm-station').addEventListener('click', () => {
+        confirmStation(selectedId, dispatch);
+      });
     });
   });
 }
