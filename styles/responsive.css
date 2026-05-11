@@ -1,179 +1,211 @@
 /* ═══════════════════════════════════════════════════════════════
    RESPONSIVE  —  Android / iOS telefon & tablet
-   ═══════════════════════════════════════════════════════════════
 
-   Tek breakpoint mantığı:
-     > 900px  → Masaüstü / geniş tablet (split layout, bar gizli)
-     ≤ 900px  → Her mobil cihaz: bottom sheet + alt bar
-                (telefon dikey/yatay, tablet dikey/yatay — hepsi aynı)
+   ÇİFT KATMANLI YAKLAŞIM:
+   App.js, window.innerWidth ≤ 900 ise body'ye "is-mobile" class ekler.
+   Kurallar hem CSS @media hem .is-mobile ile çalışır.
    ═══════════════════════════════════════════════════════════════ */
 
+/* ─── Paylaşılan mobil mixin (CSS custom property ile) ────────
+   Her iki selector grubuna aynı stilleri vermek için
+   CSS'de mixin yoktur, bu yüzden kuralları iki kez yazıyoruz.
+   ─────────────────────────────────────────────────────────────── */
 
-/* ──────────────────────────────────────────────────────────────
-   MOBİL  (≤ 900px) — masaüstü kartını kaldır, alt bar aç,
-                       liste → alt çekmece yap
-   ────────────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════
+   GRUP A: CSS Media Query
+   ══════════════════════════════════════════════════════ */
 @media (max-width: 900px) {
 
-  /* Güvenli alan: çentikli / dinamik ada (Dynamic Island) */
   #header-container {
     padding-top: env(safe-area-inset-top, 0);
     height: calc(60px + env(safe-area-inset-top, 0));
   }
 
-  /* Masaüstü kart çerçevesini kaldır, tam ekran */
   #app {
     grid-template-rows:
       calc(60px + env(safe-area-inset-top, 0))
       auto
       minmax(0, 1fr);
-    width:         100vw;
-    height:        100dvh;
-    margin:        0;
-    border:        0;
+    width: 100vw;
+    height: 100dvh;
+    margin: 0;
+    border: 0;
     border-radius: 0;
   }
 
-  /* Track TÜM main alanını kaplar */
-  #main {
-    grid-template-rows: 1fr;
-    position: relative;
-  }
+  #main { grid-template-rows: 1fr; position: relative; }
 
   #track-container {
     height: 100%;
     border-bottom: none;
-    /* Alt bar için padding — trenler barın arkasına girmesin */
     padding-bottom: calc(60px + env(safe-area-inset-bottom, 0));
     overflow: hidden;
   }
 
-  /* ── Alt çekmece (bottom sheet) ────────────────────────── */
   #list-container {
-    position:            fixed;
-    bottom:              0;
-    left:                0;
-    right:               0;
-    top:                 auto;
-    height:              auto;
-    max-height:          78dvh;
-    overflow-y:          auto;
-    overscroll-behavior: contain;
+    position: fixed; bottom: 0; left: 0; right: 0; top: auto;
+    height: auto; max-height: 78dvh;
+    overflow-y: auto; overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
-    border-radius:       22px 22px 0 0;
-    border-top:          1px solid var(--line-2);
-    background:          var(--bg-1);
-    transform:           translateY(100%);
-    transition:          transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index:             40;
-    padding-bottom:      calc(20px + env(safe-area-inset-bottom, 0));
-    box-shadow:          0 -8px 40px rgba(0, 0, 0, .45);
+    border-radius: 22px 22px 0 0;
+    border-top: 1px solid var(--line-2);
+    background: var(--bg-1);
+    transform: translateY(100%);
+    transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 40;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0));
+    box-shadow: 0 -8px 40px rgba(0,0,0,.45);
   }
 
-  #list-container.panel-open {
-    transform: translateY(0);
-  }
+  #list-container.panel-open { transform: translateY(0); }
 
-  /* Tutma çubuğu */
   #list-container::before {
-    content:       '';
-    display:       block;
-    width:         40px;
-    height:        4px;
-    border-radius: 2px;
-    background:    var(--line-3);
-    margin:        14px auto 6px;
+    content: ''; display: block;
+    width: 40px; height: 4px; border-radius: 2px;
+    background: var(--line-3); margin: 14px auto 6px;
   }
 
-  /* ── Backdrop ───────────────────────────────────────────── */
   #list-backdrop {
-    display:         block;
-    position:        fixed;
-    inset:           0;
-    background:      rgba(0, 0, 0, 0.55);
-    z-index:         39;
-    opacity:         0;
-    pointer-events:  none;
-    transition:      opacity 0.32s;
+    display: block; position: fixed; inset: 0;
+    background: rgba(0,0,0,.55); z-index: 39;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.32s;
     -webkit-tap-highlight-color: transparent;
   }
 
-  #list-backdrop.visible {
-    opacity:        1;
-    pointer-events: auto;
-  }
+  #list-backdrop.visible { opacity: 1; pointer-events: auto; }
 
-  /* ── Mobil alt bar boyutu (temel: 60px + safe area) ──── */
   #mobile-bottom-bar {
-    display:        flex;
-    height:         calc(60px + env(safe-area-inset-bottom, 0));
+    display: flex;
+    height: calc(60px + env(safe-area-inset-bottom, 0));
     padding-bottom: env(safe-area-inset-bottom, 0);
   }
 
-  /* Pilleri gizle */
-  .watched-pill,
-  .active-pill,
-  .system-pill,
-  .sort-chip { display: none; }
-
-  /* Marka bloğu dar ekranda sıkışmasın */
+  .watched-pill, .active-pill, .system-pill, .sort-chip { display: none; }
   .brand-block { min-width: auto; }
   .brand-block small { display: none; }
-
-  /* ── Kart grid: 2 sütun ─────────────────────────────── */
-  .card-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  /* ── Dokunma hedefleri 44px ──────────────────────────── */
-  .card-action        { min-height: 44px; font-size: 13px; }
-  .tab                { min-height: 44px; }
-  .topbar-icon        { width: 44px; height: 44px; }
-  .station-pick-btn   { min-height: 44px; }
-
-  /* ── Modal alt sayfa olarak açılır ──────────────────── */
-  .modal-overlay {
-    align-items: flex-end;
-    padding:     0;
-  }
-
+  .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .card-action { min-height: 44px; font-size: 13px; }
+  .tab { min-height: 44px; }
+  .topbar-icon { width: 44px; height: 44px; }
+  .station-pick-btn { min-height: 44px; }
+  .modal-overlay { align-items: flex-end; padding: 0; }
   .modal-card {
-    border-radius: 22px 22px 0 0;
-    max-height:    92dvh;
-    width:         100%;
+    border-radius: 22px 22px 0 0; max-height: 92dvh; width: 100%;
     padding-bottom: calc(20px + env(safe-area-inset-bottom, 0));
   }
-
-  /* ── Liste toolbar dikey ─────────────────────────────── */
-  .list-toolbar {
-    flex-direction: column;
-    align-items:    stretch;
-  }
+  .list-toolbar { flex-direction: column; align-items: stretch; }
   .list-tools { justify-content: space-between; }
-
-  /* ── Form satırları tek sütun ────────────────────────── */
   .form-row { grid-template-columns: 1fr; }
 }
 
 
-/* ──────────────────────────────────────────────────────────────
-   Telefon (≤ 480px) — daha küçük ekrana özel ayarlar
-   ────────────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════
+   GRUP B: JS body.is-mobile class (fallback)
+   App.js → updateMobileClass() → window.innerWidth ≤ 900
+   ══════════════════════════════════════════════════════ */
+body.is-mobile #header-container {
+  padding-top: env(safe-area-inset-top, 0);
+  height: calc(60px + env(safe-area-inset-top, 0));
+}
+
+body.is-mobile #app {
+  grid-template-rows:
+    calc(60px + env(safe-area-inset-top, 0))
+    auto
+    minmax(0, 1fr);
+  width: 100vw;
+  height: 100dvh;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+body.is-mobile #main { grid-template-rows: 1fr; position: relative; }
+
+body.is-mobile #track-container {
+  height: 100%;
+  border-bottom: none;
+  padding-bottom: calc(60px + env(safe-area-inset-bottom, 0));
+  overflow: hidden;
+}
+
+body.is-mobile #list-container {
+  position: fixed; bottom: 0; left: 0; right: 0; top: auto;
+  height: auto; max-height: 78dvh;
+  overflow-y: auto; overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 22px 22px 0 0;
+  border-top: 1px solid var(--line-2);
+  background: var(--bg-1);
+  transform: translateY(100%);
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 40;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0));
+  box-shadow: 0 -8px 40px rgba(0,0,0,.45);
+}
+
+body.is-mobile #list-container.panel-open { transform: translateY(0); }
+
+body.is-mobile #list-container::before {
+  content: ''; display: block;
+  width: 40px; height: 4px; border-radius: 2px;
+  background: var(--line-3); margin: 14px auto 6px;
+}
+
+body.is-mobile #list-backdrop {
+  display: block; position: fixed; inset: 0;
+  background: rgba(0,0,0,.55); z-index: 39;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.32s;
+}
+
+body.is-mobile #list-backdrop.visible { opacity: 1; pointer-events: auto; }
+
+body.is-mobile #mobile-bottom-bar {
+  display: flex;
+  height: calc(60px + env(safe-area-inset-bottom, 0));
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+body.is-mobile .watched-pill,
+body.is-mobile .active-pill,
+body.is-mobile .system-pill,
+body.is-mobile .sort-chip   { display: none; }
+
+body.is-mobile .brand-block       { min-width: auto; }
+body.is-mobile .brand-block small  { display: none; }
+body.is-mobile .card-grid          { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+body.is-mobile .card-action        { min-height: 44px; font-size: 13px; }
+body.is-mobile .tab                { min-height: 44px; }
+body.is-mobile .topbar-icon        { width: 44px; height: 44px; }
+body.is-mobile .station-pick-btn   { min-height: 44px; }
+body.is-mobile .modal-overlay      { align-items: flex-end; padding: 0; }
+body.is-mobile .modal-card {
+  border-radius: 22px 22px 0 0; max-height: 92dvh; width: 100%;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0));
+}
+body.is-mobile .list-toolbar       { flex-direction: column; align-items: stretch; }
+body.is-mobile .list-tools         { justify-content: space-between; }
+body.is-mobile .form-row           { grid-template-columns: 1fr; }
+
+
+/* ══════════════════════════════════════════════════════
+   Küçük telefon (≤ 480px)
+   ══════════════════════════════════════════════════════ */
 @media (max-width: 480px) {
-
   .card-grid { grid-template-columns: 1fr; }
-
-  /* İstasyon etiketleri çok küçük ekranda daha kompakt */
   .station-label { font-size: 7.5px; }
   .train-chip    { font-size: 11px; padding: 3px 6px; min-width: 78px; }
   .route-mini    { font-size: 9px; }
 }
 
+body.is-mobile.is-small .card-grid { grid-template-columns: 1fr; }
 
-/* ──────────────────────────────────────────────────────────────
-   Yatay telefon (≤ 900px genişlik + ≤ 500px yükseklik)
-   — ince header, track maksimum yer alır
-   ────────────────────────────────────────────────────────────── */
+
+/* ══════════════════════════════════════════════════════
+   Yatay telefon (≤ 900px + height ≤ 500px)
+   ══════════════════════════════════════════════════════ */
 @media (max-width: 900px) and (max-height: 500px) {
 
   #header-container {
@@ -193,24 +225,46 @@
   }
 
   #mobile-bottom-bar {
-    height:         calc(50px + env(safe-area-inset-bottom, 0));
+    height: calc(50px + env(safe-area-inset-bottom, 0));
     padding-bottom: env(safe-area-inset-bottom, 0);
   }
 
   .topbar { padding: 0 12px; gap: 8px; }
   .track-panel { padding: 8px 10px 0; }
-
-  /* Yatayda panel daha kısa açılsın */
   #list-container { max-height: 65dvh; }
 }
 
+body.is-mobile.is-landscape #header-container {
+  height: calc(46px + env(safe-area-inset-top, 0));
+}
+body.is-mobile.is-landscape #mobile-bottom-bar {
+  height: calc(50px + env(safe-area-inset-bottom, 0));
+}
+body.is-mobile.is-landscape #list-container { max-height: 65dvh; }
 
-/* ──────────────────────────────────────────────────────────────
+
+/* ══════════════════════════════════════════════════════
+   Track scroll gradient (mobil)
+   ══════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .track-stage {
+    -webkit-mask-image: linear-gradient(to right, black 82%, transparent 100%);
+    mask-image: linear-gradient(to right, black 82%, transparent 100%);
+  }
+}
+
+body.is-mobile .track-stage {
+  -webkit-mask-image: linear-gradient(to right, black 82%, transparent 100%);
+  mask-image: linear-gradient(to right, black 82%, transparent 100%);
+}
+
+
+/* ══════════════════════════════════════════════════════
    Azaltılmış hareket tercihi
-   ────────────────────────────────────────────────────────────── */
+   ══════════════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation-duration:  .01ms !important;
+    animation-duration: .01ms !important;
     transition-duration: .01ms !important;
   }
 }

@@ -543,9 +543,26 @@ function renderMobileBar(s) {
 
 // ─── Boot ──────────────────────────────────────────────────────────────────
 
+/** Viewport boyutuna göre body class'larını günceller.
+ *  Hem CSS @media hem JS body class ile çalışır — ikili güvence. */
+function updateMobileClass() {
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  document.body.classList.toggle('is-mobile',    w <= 900);
+  document.body.classList.toggle('is-small',     w <= 480);
+  document.body.classList.toggle('is-landscape', w <= 900 && h <= 500);
+}
+
 export async function boot() {
   // Make dispatch accessible from inline onclick handlers
   window._dispatch = dispatch;
+
+  // Mobil layout class'ını başlat ve ekran boyutu değişince güncelle
+  updateMobileClass();
+  window.addEventListener('resize', () => {
+    updateMobileClass();
+    renderAll();  // layout değişince yeniden çiz
+  });
 
   // Kaydedilmiş custom sound'ları da geçir
   const savedForAudio = loadData();

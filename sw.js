@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tren-izleme-v11';
+const CACHE_NAME = 'tren-izleme-v12';
 const ASSETS = [
   './',
   './index.html',
