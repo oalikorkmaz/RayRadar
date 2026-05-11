@@ -13,8 +13,11 @@
 
 /* ══════════════════════════════════════════════════════
    GRUP A: CSS Media Query
+   Portrait telefon: max-width: 600px
+   Yatay telefon:   orientation:landscape + max-height: 600px
+   (Büyük telefon yatayda 932px genişlikte olabilir — genişliğe göre değil yüksekliğe göre yakala)
    ══════════════════════════════════════════════════════ */
-@media (max-width: 900px) {
+@media (max-width: 600px), (orientation: landscape) and (max-height: 600px) {
 
   #header-container {
     padding-top: env(safe-area-inset-top, 0);
@@ -204,9 +207,10 @@ body.is-mobile.is-small .card-grid { grid-template-columns: 1fr; }
 
 
 /* ══════════════════════════════════════════════════════
-   Yatay telefon (≤ 900px + height ≤ 500px)
+   Yatay telefon — kısa yükseklikle tanımlanır
+   (max-width sınırı yok: 932px yatay iPhone de dahil)
    ══════════════════════════════════════════════════════ */
-@media (max-width: 900px) and (max-height: 500px) {
+@media (orientation: landscape) and (max-height: 500px) {
 
   #header-container {
     height: calc(46px + env(safe-area-inset-top, 0));
@@ -246,7 +250,7 @@ body.is-mobile.is-landscape #list-container { max-height: 65dvh; }
 /* ══════════════════════════════════════════════════════
    Track scroll gradient (mobil)
    ══════════════════════════════════════════════════════ */
-@media (max-width: 900px) {
+@media (max-width: 600px), (orientation: landscape) and (max-height: 600px) {
   .track-stage {
     -webkit-mask-image: linear-gradient(to right, black 82%, transparent 100%);
     mask-image: linear-gradient(to right, black 82%, transparent 100%);

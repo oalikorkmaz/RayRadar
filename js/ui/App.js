@@ -544,13 +544,27 @@ function renderMobileBar(s) {
 // ─── Boot ──────────────────────────────────────────────────────────────────
 
 /** Viewport boyutuna göre body class'larını günceller.
- *  Hem CSS @media hem JS body class ile çalışır — ikili güvence. */
+ *
+ *  Neden Math.min?
+ *    Telefon dikey:  430 × 932  → min = 430  → mobil ✓
+ *    Telefon yatay:  932 × 430  → min = 430  → mobil ✓  (eski yöntem başarısız olurdu)
+ *    Tablet yatay:  1024 × 768  → min = 768  → masaüstü ✓
+ *    Laptop:        1280 × 800  → min = 800  → masaüstü ✓
+ *
+ *  Eşik 600px: tüm telefonların kısa kenarı ≤ ~430px, tablet/masaüstü ≥ 600px
+ */
 function updateMobileClass() {
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-  document.body.classList.toggle('is-mobile',    w <= 900);
-  document.body.classList.toggle('is-small',     w <= 480);
-  document.body.classList.toggle('is-landscape', w <= 900 && h <= 500);
+  const w         = window.innerWidth;
+  const h         = window.innerHeight;
+  const shortSide = Math.min(w, h);            // kısa kenar
+
+  const isMobile   = shortSide <= 600;          // telefon (dikey/yatay)
+  const isSmall    = shortSide <= 390;          // küçük telefon
+  const isLandscape = w > h && isMobile;        // yatay telefon
+
+  document.body.classList.toggle('is-mobile',    isMobile);
+  document.body.classList.toggle('is-small',     isSmall);
+  document.body.classList.toggle('is-landscape', isLandscape);
 }
 
 export async function boot() {
