@@ -503,9 +503,9 @@ function renderHeader(s) {
   el.innerHTML = `
     <div class="topbar">
       <div class="brand-block">
-        <span class="logo-mark">T</span>
+        <img class="logo-mark" src="assets/icons/icon.png" alt="RayRadar" />
         <div>
-          <strong>Tren İzleme</strong>
+          <strong>RayRadar</strong>
           <small>v1.0</small>
         </div>
       </div>

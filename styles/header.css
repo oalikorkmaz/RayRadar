@@ -21,14 +21,11 @@
 }
 
 .logo-mark {
-  display: grid;
-  width: 28px;
-  height: 28px;
-  place-items: center;
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
-  background: var(--watched);
-  color: #160f0a;
-  font-weight: 800;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
 .brand-block strong {
