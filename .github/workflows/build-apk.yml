@@ -33,11 +33,8 @@ jobs:
       - name: Copy web files to www/
         run: node scripts/copy-web.js
 
-      - name: Generate Android icons from assets/icons/icon.png
-        run: |
-          mkdir -p resources
-          cp assets/icons/icon.png resources/icon.png
-          npx @capacitor/assets generate --android
+      - name: Generate Android icons from resources/icon.png
+        run: npx @capacitor/assets generate --android --assetPath resources
 
       - name: Sync Capacitor
         run: npx cap sync android

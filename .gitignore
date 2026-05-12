@@ -4,5 +4,4 @@ android/app/build/
 android/build/
 android/app/src/main/assets/public/
 .gradle/
-resources/
 www/
