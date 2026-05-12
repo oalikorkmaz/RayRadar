@@ -6,18 +6,14 @@
    Kurallar hem CSS @media hem .is-mobile ile çalışır.
    ═══════════════════════════════════════════════════════════════ */
 
-/* ─── Paylaşılan mobil mixin (CSS custom property ile) ────────
-   Her iki selector grubuna aynı stilleri vermek için
-   CSS'de mixin yoktur, bu yüzden kuralları iki kez yazıyoruz.
-   ─────────────────────────────────────────────────────────────── */
-
 /* ══════════════════════════════════════════════════════
    GRUP A: CSS Media Query
-   Portrait telefon: max-width: 600px
-   Yatay telefon:   orientation:landscape + max-height: 600px
-   (Büyük telefon yatayda 932px genişlikte olabilir — genişliğe göre değil yüksekliğe göre yakala)
+   Portrait telefon: max-width: 700px
+   Yatay telefon:   orientation:landscape + max-height: 700px
+   (700px eşiği: tüm telefonların kısa kenarı ≤ ~430px,
+    tablet/masaüstü ≥ 760px — güvenli aralık var)
    ══════════════════════════════════════════════════════ */
-@media (max-width: 600px), (orientation: landscape) and (max-height: 600px) {
+@media (max-width: 700px), (orientation: landscape) and (max-height: 700px) {
 
   #header-container {
     padding-top: env(safe-area-inset-top, 0);
@@ -30,10 +26,12 @@
       auto
       minmax(0, 1fr);
     width: 100vw;
+    height: 100vh;
     height: 100dvh;
     margin: 0;
     border: 0;
     border-radius: 0;
+    box-shadow: none;
   }
 
   #main { grid-template-rows: 1fr; position: relative; }
@@ -105,7 +103,7 @@
 
 /* ══════════════════════════════════════════════════════
    GRUP B: JS body.is-mobile class (fallback)
-   App.js → updateMobileClass() → window.innerWidth ≤ 900
+   App.js → updateMobileClass() → shortSide ≤ 700
    ══════════════════════════════════════════════════════ */
 body.is-mobile #header-container {
   padding-top: env(safe-area-inset-top, 0);
@@ -118,10 +116,12 @@ body.is-mobile #app {
     auto
     minmax(0, 1fr);
   width: 100vw;
+  height: 100vh;
   height: 100dvh;
   margin: 0;
   border: 0;
   border-radius: 0;
+  box-shadow: none;
 }
 
 body.is-mobile #main { grid-template-rows: 1fr; position: relative; }
@@ -210,7 +210,7 @@ body.is-mobile.is-small .card-grid { grid-template-columns: 1fr; }
    Yatay telefon — kısa yükseklikle tanımlanır
    (max-width sınırı yok: 932px yatay iPhone de dahil)
    ══════════════════════════════════════════════════════ */
-@media (orientation: landscape) and (max-height: 500px) {
+@media (orientation: landscape) and (max-height: 600px) {
 
   #header-container {
     height: calc(46px + env(safe-area-inset-top, 0));
@@ -234,11 +234,40 @@ body.is-mobile.is-small .card-grid { grid-template-columns: 1fr; }
   }
 
   .topbar { padding: 0 12px; gap: 8px; }
-  .track-panel { padding: 6px 10px 0; }
-  .track-stage { height: 100% !important; }  /* sabit 270px'i override et */
+  .track-panel { padding: 4px 10px 0; }
+  .track-stage { height: 100% !important; }
   .panel-title-row { margin-bottom: 2px; }
   .panel-title-row h2 { font-size: 12px; }
   #list-container { max-height: 65dvh; }
+}
+
+/* Landscape 600–700px — orta boy telefon yatayda */
+@media (orientation: landscape) and (min-height: 601px) and (max-height: 700px) {
+
+  #header-container {
+    height: calc(54px + env(safe-area-inset-top, 0));
+    padding-top: env(safe-area-inset-top, 0);
+  }
+
+  #app {
+    grid-template-rows:
+      calc(54px + env(safe-area-inset-top, 0))
+      auto
+      minmax(0, 1fr);
+  }
+
+  #track-container {
+    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0));
+  }
+
+  #mobile-bottom-bar {
+    height: calc(56px + env(safe-area-inset-bottom, 0));
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  .track-panel { padding: 6px 14px 0; }
+  .track-stage { height: 100% !important; }
+  #list-container { max-height: 70dvh; }
 }
 
 body.is-mobile.is-landscape #header-container {
@@ -247,22 +276,28 @@ body.is-mobile.is-landscape #header-container {
 body.is-mobile.is-landscape #mobile-bottom-bar {
   height: calc(50px + env(safe-area-inset-bottom, 0));
 }
+body.is-mobile.is-landscape #track-container {
+  padding-bottom: calc(50px + env(safe-area-inset-bottom, 0));
+}
+body.is-mobile.is-landscape .track-panel { padding: 4px 10px 0; }
+body.is-mobile.is-landscape .track-stage { height: 100% !important; }
+body.is-mobile.is-landscape .panel-title-row h2 { font-size: 12px; }
 body.is-mobile.is-landscape #list-container { max-height: 65dvh; }
 
 
 /* ══════════════════════════════════════════════════════
    Track scroll gradient (mobil)
    ══════════════════════════════════════════════════════ */
-@media (max-width: 600px), (orientation: landscape) and (max-height: 600px) {
+@media (max-width: 700px), (orientation: landscape) and (max-height: 700px) {
   .track-stage {
-    -webkit-mask-image: linear-gradient(to right, black 82%, transparent 100%);
-    mask-image: linear-gradient(to right, black 82%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+    mask-image: linear-gradient(to right, black 85%, transparent 100%);
   }
 }
 
 body.is-mobile .track-stage {
-  -webkit-mask-image: linear-gradient(to right, black 82%, transparent 100%);
-  mask-image: linear-gradient(to right, black 82%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+  mask-image: linear-gradient(to right, black 85%, transparent 100%);
 }
 
 

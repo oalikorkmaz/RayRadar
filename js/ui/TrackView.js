@@ -3,10 +3,10 @@ import { DEFAULT_WATCHED_STATION_ID } from '../constants/config.js';
 import { getTrainDirection, getTrainPosition } from '../models/Train.js';
 import { minutesRemaining, formatMinutes } from '../services/time.js';
 
-const VIEW_W = 1160;
+const VIEW_W = 1200;
 const VIEW_H = 300;
-const PAD_L = 60;
-const PAD_R = 60;
+const PAD_L = 90;
+const PAD_R = 90;
 const RAIL_Y = 165;
 
 export function renderTrackView(container, state, dispatch) {
@@ -34,7 +34,7 @@ export function renderTrackView(container, state, dispatch) {
             ${renderRails(collisionSegments, segCount)}
             ${renderStations(stations, watchedId, segCount)}
           </svg>
-          <div class="track-trains">
+          <div class="track-trains" style="width:${VIEW_W}px">
             ${state.trains.map(train => trainMarker(train, dragEnabled, stations, watchedId, segCount)).join('')}
           </div>
         </div>
@@ -250,32 +250,41 @@ function stationX(index, segCount) {
 
 /** İzlenen istasyonu track-stage'in ortasına kaydır.
  *
- *  requestAnimationFrame: DOM render tamamlanmadan clientWidth = 0 okunur.
- *  İki frame bekleyerek layout'un kesinleşmesini garantiliyoruz.
+ *  ResizeObserver fallback: bazı cihazlarda double-rAF sonrası
+ *  clientWidth hâlâ 0 olabilir (gizli sekme, yavaş layout, PWA başlangıcı).
+ *  Bu durumda ResizeObserver genişlik gelene kadar bekler.
  */
 function scrollToWatchedStation(container, watchedId, stations, segCount) {
-  // İlk frame: layout hesaplandı ama henüz ekrana basılmadı
+  const applyScroll = stage => {
+    const stageWidth = stage.clientWidth;
+    if (!stageWidth) return false;
+
+    const watched = stations.find(s => s.id === watchedId);
+    if (!watched) return true;
+
+    const targetX      = stationX(watched.index, segCount);
+    const scrollTarget = Math.max(0, targetX - stageWidth / 2);
+
+    if (stage.dataset.watchedId !== watchedId) {
+      stage.scrollLeft        = scrollTarget;
+      stage.dataset.watchedId = watchedId;
+    }
+    return true;
+  };
+
   requestAnimationFrame(() => {
-    // İkinci frame: ekrana basıldı, clientWidth güvenilir
     requestAnimationFrame(() => {
       const stage = container.querySelector('.track-stage');
       if (!stage) return;
 
-      const stageWidth = stage.clientWidth;
-      if (!stageWidth) return;  // hala 0 ise vazgeç (örn. gizli sekme)
+      if (applyScroll(stage)) return;
 
-      const watched = stations.find(s => s.id === watchedId);
-      if (!watched) return;
-
-      const targetX      = stationX(watched.index, segCount);
-      const scrollTarget = Math.max(0, targetX - stageWidth / 2);
-
-      // İzlenen istasyon değişince yeniden ortala;
-      // aynı istasyonsa kullanıcının manual scroll'unu koru
-      if (stage.dataset.watchedId !== watchedId) {
-        stage.scrollLeft           = scrollTarget;
-        stage.dataset.watchedId    = watchedId;
-      }
+      // clientWidth hâlâ 0: ResizeObserver ile genişlik bildirimini bekle
+      const ro = new ResizeObserver(() => {
+        if (applyScroll(stage)) ro.disconnect();
+      });
+      ro.observe(stage);
+      setTimeout(() => ro.disconnect(), 3000); // bellek sızıntısına karşı güvenlik
     });
   });
 }

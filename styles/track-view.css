@@ -57,15 +57,14 @@
    bu yüzden track-stage'e uyguluyoruz, wrapper'a değil */
 @media (max-width: 900px) {
   .track-stage {
-    /* Sağ %15'te fade-out → "daha fazla içerik var" ipucu */
-    -webkit-mask-image: linear-gradient(to right, black 82%, transparent 100%);
-    mask-image:         linear-gradient(to right, black 82%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+    mask-image:         linear-gradient(to right, black 85%, transparent 100%);
   }
 }
 
 .track-svg {
   display: block;
-  width: 1160px;
+  width: 1200px;
   height: 300px;
 }
 
@@ -141,7 +140,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 1160px;
+  width: 1200px;
   height: 300px;
   pointer-events: none;
 }
@@ -310,7 +309,8 @@
      yeni konum: 165 + 48 - 96 = 117px  ✓  (sığar)
    ═══════════════════════════════════════════════════════════════ */
 
-@media (orientation: landscape) and (max-height: 600px) {
+/* ─── Yatay telefon landscape ─── */
+@media (orientation: landscape) and (max-height: 700px) {
 
   /* İstasyon etiketlerini rayın üstüne taşı */
   .station-label {
@@ -322,24 +322,24 @@
     font-size:  9px;
   }
 
-  /* "İZLENEN" yazısını gizle (zaten görünür, etiket üstte) */
+  /* "İZLENEN" yazısını gizle (etiket zaten üstte) */
   .station-mini { display: none; }
 
-  /* Çakışma üçgeni de yukarı git */
+  /* Çakışma üçgeni de yukarı */
   .collision-glyph {
     transform: translateY(20px);
   }
 
-  /* Tren chip ve route mini biraz küçült */
+  /* Kompakt chip ve route */
   .train-chip {
     font-size: 10px;
     padding:   3px 6px;
     min-width: 72px;
+    gap:       5px;
   }
 
   .route-mini { font-size: 8px; }
 
-  /* track-stage yüksekliğini daha iyi kullan */
   .track-stage { height: 100%; }
 }
 
@@ -353,6 +353,7 @@ body.is-landscape .station-node.watched .station-label {
   font-size: 9px;
 }
 
-body.is-landscape .station-mini         { display: none; }
-body.is-landscape .train-chip           { font-size: 10px; padding: 3px 6px; min-width: 72px; }
-body.is-landscape .route-mini           { font-size: 8px; }
+body.is-landscape .station-mini  { display: none; }
+body.is-landscape .collision-glyph { transform: translateY(20px); }
+body.is-landscape .train-chip    { font-size: 10px; padding: 3px 6px; min-width: 72px; gap: 5px; }
+body.is-landscape .route-mini    { font-size: 8px; }

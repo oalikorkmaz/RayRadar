@@ -20,11 +20,12 @@ let state = {
     showForm:        false,
     editingTrain:    null,
     showSettings:    false,
-    showMobilePanel: false,   // mobil alt çekmece
-    banners:         [],
-    showStaleModal:  false,
-    staleTrains:     [],
-    collisions:      [],
+    showMobilePanel:     false,
+    showNotifications:   false,
+    banners:             [],
+    showStaleModal:      false,
+    staleTrains:         [],
+    collisions:          [],
   },
 };
 
@@ -140,6 +141,12 @@ function reduce(s, action, payload) {
 
     case 'CLOSE_MOBILE_PANEL':
       return { ...s, ui: { ...s.ui, showMobilePanel: false } };
+
+    case 'TOGGLE_NOTIFICATIONS':
+      return { ...s, ui: { ...s.ui, showNotifications: !s.ui.showNotifications } };
+
+    case 'CLOSE_NOTIFICATIONS':
+      return { ...s, ui: { ...s.ui, showNotifications: false } };
 
     case 'UPDATE_SETTINGS':
       return { ...s, settings: { ...s.settings, ...payload } };
@@ -388,7 +395,7 @@ function updateTrackPositionsInDOM() {
     if (el.classList.contains('dragging')) return;
     const pos = getTrainPositionWithStations(train, state.settings.stations);
     if (pos === null) return;
-    const left = 60 + (pos / segCount) * 1040;
+    const left = 90 + (pos / segCount) * 1020;
     el.style.left = `${left}px`;
   });
 
@@ -413,15 +420,16 @@ let _renderFns = null;
 
 async function getRenderFns() {
   if (_renderFns) return _renderFns;
-  const [TrackView, TrainList, AlertBanner, FirstLaunch, StaleModal, SettingsPanel] = await Promise.all([
+  const [TrackView, TrainList, AlertBanner, FirstLaunch, StaleModal, SettingsPanel, NotificationsPanel] = await Promise.all([
     import('./TrackView.js'),
     import('./TrainList.js'),
     import('./AlertBanner.js'),
     import('./FirstLaunch.js'),
     import('./StaleTrainsModal.js'),
     import('./SettingsPanel.js'),
+    import('./NotificationsPanel.js'),
   ]);
-  _renderFns = { TrackView, TrainList, AlertBanner, FirstLaunch, StaleModal, SettingsPanel };
+  _renderFns = { TrackView, TrainList, AlertBanner, FirstLaunch, StaleModal, SettingsPanel, NotificationsPanel };
   return _renderFns;
 }
 
@@ -466,6 +474,12 @@ async function renderAll() {
     document.getElementById('settings-container').innerHTML = '';
   }
 
+  if (s.ui.showNotifications) {
+    fns.NotificationsPanel.renderNotifications(document.getElementById('notifications-container'), s, dispatch);
+  } else {
+    document.getElementById('notifications-container').innerHTML = '';
+  }
+
   if (s.ui.showForm) {
     const { renderForm } = await import('./TrainForm.js');
     renderForm(document.getElementById('modal-container'), s, dispatch);
@@ -500,7 +514,7 @@ function renderHeader(s) {
       <span class="active-pill">${activeCount} aktif tren</span>
       <div class="topbar-spacer"></div>
       <time class="topbar-clock" id="topbar-clock">${clock}</time>
-      <button class="topbar-icon" title="Bildirimler" aria-label="Bildirimler">
+      <button class="topbar-icon" onclick="window._dispatch('TOGGLE_NOTIFICATIONS')" title="Bildirimler" aria-label="Bildirimler">
         <span>🔔</span>
         ${alertCount ? `<em>${alertCount}</em>` : ''}
       </button>
@@ -547,20 +561,20 @@ function renderMobileBar(s) {
  *
  *  Neden Math.min?
  *    Telefon dikey:  430 × 932  → min = 430  → mobil ✓
- *    Telefon yatay:  932 × 430  → min = 430  → mobil ✓  (eski yöntem başarısız olurdu)
- *    Tablet yatay:  1024 × 768  → min = 768  → masaüstü ✓
+ *    Telefon yatay:  932 × 430  → min = 430  → mobil ✓
+ *    Tablet dikey:   768 × 1024 → min = 768  → masaüstü ✓
  *    Laptop:        1280 × 800  → min = 800  → masaüstü ✓
  *
- *  Eşik 600px: tüm telefonların kısa kenarı ≤ ~430px, tablet/masaüstü ≥ 600px
+ *  Eşik 700px: tüm telefonların kısa kenarı ≤ ~480px, tablet/masaüstü ≥ 768px
  */
 function updateMobileClass() {
   const w         = window.innerWidth;
   const h         = window.innerHeight;
-  const shortSide = Math.min(w, h);            // kısa kenar
+  const shortSide = Math.min(w, h);
 
-  const isMobile   = shortSide <= 600;          // telefon (dikey/yatay)
-  const isSmall    = shortSide <= 390;          // küçük telefon
-  const isLandscape = w > h && isMobile;        // yatay telefon
+  const isMobile    = shortSide <= 700;
+  const isSmall     = shortSide <= 390;
+  const isLandscape = w > h && isMobile;
 
   document.body.classList.toggle('is-mobile',    isMobile);
   document.body.classList.toggle('is-small',     isSmall);
@@ -571,11 +585,18 @@ export async function boot() {
   // Make dispatch accessible from inline onclick handlers
   window._dispatch = dispatch;
 
-  // Mobil layout class'ını başlat ve ekran boyutu değişince güncelle
+  // Mobil layout class'ını başlat ve ekran boyutu / yön değişince güncelle
   updateMobileClass();
   window.addEventListener('resize', () => {
     updateMobileClass();
-    renderAll();  // layout değişince yeniden çiz
+    renderAll();
+  });
+  window.addEventListener('orientationchange', () => {
+    // orientationchange sonrası boyutlar hemen güncellenmiyor — kısa gecikme
+    setTimeout(() => {
+      updateMobileClass();
+      renderAll();
+    }, 150);
   });
 
   // Kaydedilmiş custom sound'ları da geçir
@@ -596,14 +617,15 @@ export async function boot() {
     segmentTimes:         saved.segmentTimes || {},
     firstLaunchCompleted: saved.firstLaunchCompleted || false,
     ui: {
-      activeTab:      'active',
-      showForm:       false,
-      editingTrain:   null,
-      showSettings:   false,
-      banners:        [],
-      showStaleModal: staleTrains.length > 0,
+      activeTab:         'active',
+      showForm:          false,
+      editingTrain:      null,
+      showSettings:      false,
+      showNotifications: false,
+      banners:           [],
+      showStaleModal:    staleTrains.length > 0,
       staleTrains,
-      collisions:     [],
+      collisions:        [],
     },
   };
 
