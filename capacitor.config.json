@@ -1,0 +1,14 @@
+{
+  "appId": "com.rayradar.app",
+  "appName": "RayRadar",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_notification",
+      "iconColor": "#ff8c42"
+    }
+  }
+}

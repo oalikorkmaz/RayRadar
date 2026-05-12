@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">RayRadar</string>
+    <string name="title_activity_main">RayRadar</string>
+    <string name="package_name">com.rayradar.app</string>
+    <string name="custom_url_scheme">com.rayradar.app</string>
+</resources>
